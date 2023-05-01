@@ -7,4 +7,32 @@ import { Component } from '@angular/core';
 })
 export class AppComponent {
   title = 'pupsi-app';
+
+  commands: String[] = [
+    "+RAA0202",
+    "+RAA0A03",
+    "+RAA0802",
+    "+RAA2C02",
+    "+RAA1002",
+    "+RAA1002",
+    "+RAA0A03",
+    "+RAA0802",
+    "+RAA0C02",
+    "+RAA0403",
+    "+RAA3C03",
+    "+RAA0603",
+    "+RAA1802",
+    "+RAA1A02",
+    "+RAA2802",
+    "+RAA4802",
+    "+RAA0202",
+  ]
+
+  connectBattery() {
+    console.log("Connecting battery");
+  }
+
+  sendCommand(command: String) {
+    console.log("Send command", command);
+  }
 }
