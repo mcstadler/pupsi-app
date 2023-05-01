@@ -1,3 +1,4 @@
+/// <reference types="web-bluetooth" />
 import { Component } from '@angular/core';
 
 @Component({
@@ -30,6 +31,12 @@ export class AppComponent {
 
   connectBattery() {
     console.log("Connecting battery");
+
+    navigator.bluetooth.requestDevice({
+      filters: [{
+        services: [0xfff0],
+      }]
+    }).then((device: BluetoothDevice) => console.log(device));
   }
 
   sendCommand(command: String) {
