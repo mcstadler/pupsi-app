@@ -117,6 +117,8 @@ export class AppComponent {
     const decodedText = new TextDecoder().decode(encoded);
     this.events += '\nDecoded: ' + decodedText
 
+    var voltageVal = 0;
+
     switch(decodedText.substring(0, 6)) {
       // SOC (battery level)
       case "+RD,02":
@@ -134,37 +136,98 @@ export class AppComponent {
         const hexRmcLsb = decodedText.substring(6,8);
         const hexRmcMsb = decodedText.substring(8,10);
         const rmcVal = parseInt(hexRmcMsb + hexRmcLsb, 16) * ratio;
-        this.events += '\nRMC: ' + rmcVal
+        this.events += '\nRMC: ' + rmcVal / 1000 + ' Ah -> ' + rmcVal / 1000 * voltageVal + ' Wh'
         break;
 
+      // ACTION_FCC
       case "+RD,06":
+        const hexRatioFfc = decodedText.substring(10,12);
+        const ratioFfc = parseInt(hexRatioFfc, 16);
+        this.events += '\nRatio: ' + ratioFfc
+
+        const hexActionFfcLsb = decodedText.substring(6,8);
+        const hexActionFfcMsb = decodedText.substring(8,10);
+        const actionFfcVal = parseInt(hexActionFfcMsb + hexActionFfcLsb, 16) * ratioFfc;
+        this.events += '\nAction FFC: ' + actionFfcVal / 1000 + ' Ah'
         break;
 
+      // VOLTAGE
       case "+RD,08":
+        const hexVoltageLsb = decodedText.substring(6,8);
+        const hexVoltageMsb = decodedText.substring(8,10);
+        voltageVal = parseInt(hexVoltageMsb + hexVoltageLsb, 16) / 1000;
+        this.events += '\nVoltage: ' + voltageVal + ' V'
         break;
 
+      // TEMPERATURE
       case "+RD,0C":
+        const hexTempLsb = decodedText.substring(6,8);
+        const hexTempMsb = decodedText.substring(8,10);
+        const tempVal = (parseInt(hexTempMsb + hexTempLsb, 16) - 2731) / 10;
+        this.events += '\nTemperature: ' + tempVal + ' °C'
         break;
 
+      // CURRENT
       case "+RD,10":
+        const hexCurrLsb = decodedText.substring(6,8);
+        const hexCurrMsb = decodedText.substring(8,10);
+        const currVal = parseInt(hexCurrMsb + hexCurrLsb, 16) / 1000;
+        this.events += '\nCurrent: ' + currVal + ' A'
         break;
 
+      // ACTION_ATTE
       case "+RD,18":
+        const hexAtteLsb = decodedText.substring(6,8);
+        const hexAtteMsb = decodedText.substring(8,10);
+        const atteVal = parseInt(hexAtteMsb + hexAtteLsb, 16) / 60;
+        this.events += '\nTime until 0% SOC: ' + atteVal + ' h'
         break;
 
+      // ACTION_ATTF
       case "+RD,1A":
+        const hexAttfLsb = decodedText.substring(6,8);
+        const hexAttfMsb = decodedText.substring(8,10);
+        const attfVal = parseInt(hexAttfMsb + hexAttfLsb, 16) / 60;
+        this.events += '\nTime until 100% SOC: ' + attfVal + ' h'
         break;
 
+      // ACTION_NUMBER
       case "+RD,28":
+        const hexSerNoLsb = decodedText.substring(6,8);
+        const hexSerNoMsb = decodedText.substring(8,10);
+        const serNoVal = parseInt(hexSerNoMsb + hexSerNoLsb, 16);
+        this.events += '\nSerial number: ' + serNoVal
         break;
 
+      // CYCLE
       case "+RD,2C":
+        const hexCycleLsb = decodedText.substring(6,8);
+        const hexCycleMsb = decodedText.substring(8,10);
+        const cycleVal = parseInt(hexCycleMsb + hexCycleLsb, 16);
+        this.events += '\nCycles: ' + cycleVal
         break;
 
+      // ACTION_DCAP
       case "+RD,3C":
+        const hexRatioDcap = decodedText.substring(10,12);
+        const ratioDcap = parseInt(hexRatioDcap, 16);
+        this.events += '\nRatio: ' + ratioDcap
+
+        const hexActionDcapLsb = decodedText.substring(6,8);
+        const hexActionDcapMsb = decodedText.substring(8,10);
+        const actionDcapVal = parseInt(hexActionDcapMsb + hexActionDcapLsb, 16) * ratioDcap;
+        this.events += '\nAction DCAP: ' + actionDcapVal / 1000 + ' Ah'
         break;
 
+      // ACTION_DATE
       case "+RD,48":
+        const hexDateLsb = decodedText.substring(6,8);
+        const hexDateMsb = decodedText.substring(8,10);
+        const dateVal = parseInt(hexDateMsb + hexDateLsb, 16);
+        const year = dateVal / 512 + 1980;
+        const month = dateVal % 512 / 32;
+        const day = dateVal % 512 % 32;
+        this.events += '\nDate: ' + day + '.' + month + '.' + year;
         break;
 
       default:
